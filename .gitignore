@@ -1,0 +1,7 @@
+*.o
+*.d
+.cache
+build
+*.json
+ft_strace
+hello_world
