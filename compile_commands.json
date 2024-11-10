@@ -1,0 +1,27 @@
+[
+	{
+		"directory": "/home/richtofen/Code/strace",
+		"file": "/home/richtofen/Code/strace/src/ft_strace.c",
+		"output": "/home/richtofen/Code/strace/src/ft_strace.o",
+		"arguments": [
+			"/usr/bin/clang",
+			"-std=gnu99",
+			"-m64",
+			"-O3",
+			"-DVERBOSE",
+			"-DDEBUG",
+			"-I/home/richtofen/Code/strace/inc",
+			"-Wall",
+			"-Wextra",
+			"-Werror",
+			"-Wpedantic",
+			"-Wno-unused",
+			"-Wno-unused-variable",
+			"-Wno-unused-parameter",
+			"-c",
+			"/home/richtofen/Code/strace/src/ft_strace.c",
+			"-o",
+			"/home/richtofen/Code/strace/src/ft_strace.o"
+		]
+	}
+]

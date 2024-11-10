@@ -94,7 +94,7 @@ $(name): $(objs)
 
 -include $(deps)
 %.o : %.c Makefile
-	@$(cc) $(cflags) $(depflags) -c $< -o $@
+	@$(cc) $(cflags) $(depflags) $(defines) -c $< -o $@
 	echo "compiling -> \033[33m"$(<F)"\033[0m"
 
 $(cmddb): $(srcs) Makefile

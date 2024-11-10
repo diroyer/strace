@@ -9,9 +9,10 @@
 # include <sys/ptrace.h>
 # include <sys/types.h>
 # include <sys/wait.h>
+# include <stdint.h>
+# include <sys/user.h>
+# include <time.h>
 
-
-typedef int64_t Err_value;
 
 # define _error(...) { \
 	dprintf(STDERR_FILENO, __VA_ARGS__); \
@@ -21,7 +22,7 @@ typedef int64_t Err_value;
 	dprintf(STDOUT_FILENO, __VA_ARGS__); \
 }
 
-# ifndef DEBUG
+# ifdef DEBUG
 #  define _debug(...) { \
 		dprintf(STDERR_FILENO, __VA_ARGS__); \
 	}
