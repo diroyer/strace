@@ -10,10 +10,14 @@
 .ONESHELL:
 
 # set shell program
-override SHELL := $(shell which sh)
+override SHELL := $(shell which bash)
 
 # set shell flags
-.SHELLFLAGS := -c
+# - c : run commands from command line
+#  -e : exit immediately if a command exits with a non-zero status
+#  -o : pipefail : return the exit status of the last command in the pipeline that failed
+
+.SHELLFLAGS := -c -e -o pipefail -u
 
 # set make flags
 override MAKEFLAGS += --warn-undefined-variables --no-builtin-rules
@@ -80,22 +84,16 @@ override ldflags :=
 override depflags = -MT $@ -MMD -MP -MF $*.d
 
 
-
-
-
-
 # -- M A I N  T A R G E T S ---------------------------------------------------
 
 all: $(name) $(cmddb)
 
 $(name): $(objs)
-	@$(cc) $^ -o $@ $(ldflags)
-	echo "  linking -> \033[34m"$@"\033[0m"
+	$(cc) $^ -o $@ $(ldflags)
 
 -include $(deps)
 %.o : %.c Makefile
-	@$(cc) $(cflags) $(depflags) $(defines) -c $< -o $@
-	echo "compiling -> \033[33m"$(<F)"\033[0m"
+	$(cc) $(cflags) $(depflags) $(defines) -c $< -o $@
 
 $(cmddb): $(srcs) Makefile
 	$(call generate_compile_commands)
@@ -105,7 +103,7 @@ clean:
 	@rm -rvf $(objs) $(deps) $(cmddb) '.cache'
 
 fclean: clean
-	@rm -vf $(name) woody
+	@rm -vf $(name) $(cmddb)
 
 re: fclean all
 

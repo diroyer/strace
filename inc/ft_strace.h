@@ -12,6 +12,9 @@
 # include <stdint.h>
 # include <sys/user.h>
 # include <time.h>
+# include <sys/uio.h>
+
+# define NT_PRSTATUS 1
 
 
 # define _error(...) { \
