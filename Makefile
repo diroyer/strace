@@ -86,7 +86,7 @@ override depflags = -MT $@ -MMD -MP -MF $*.d
 
 # -- M A I N  T A R G E T S ---------------------------------------------------
 
-all: $(name) $(cmddb)
+all: $(name)
 
 $(name): $(objs)
 	$(cc) $^ -o $@ $(ldflags)
@@ -95,15 +95,11 @@ $(name): $(objs)
 %.o : %.c Makefile
 	$(cc) $(cflags) $(depflags) $(defines) -c $< -o $@
 
-$(cmddb): $(srcs) Makefile
-	$(call generate_compile_commands)
-
-
 clean:
 	@rm -rvf $(objs) $(deps) $(cmddb) '.cache'
 
 fclean: clean
-	@rm -vf $(name) $(cmddb)
+	@rm -vf $(name)
 
 re: fclean all
 
@@ -111,24 +107,3 @@ re: fclean all
 # -- P H O N Y  T A R G E T S -------------------------------------------------
 
 .PHONY: all clean fclean re
-
-
-# -- F U N C T I O N S --------------------------------------------------------
-
-define generate_compile_commands
-	@echo '[' > $@
-	for file in $(srcs); do
-		echo '\t{\n\t\t"directory": "'$(CURDIR)'",' >> $@
-		echo '\t\t"file": "'$$file'",' >> $@
-		echo '\t\t"output": "'$${file%.c}'.o",' >> $@
-		echo '\t\t"arguments": [' >> $@
-		echo '\t\t\t"$(cc)",' >> $@
-		for flag in $(cflags); do
-			echo '\t\t\t"'$$flag'",' >> $@
-		done
-		echo '\t\t\t"-c",\n\t\t\t"'$$file'",' >> $@
-		echo '\t\t\t"-o",\n\t\t\t"'$${file%.c}'.o"\n\t\t]\n\t},' >> $@
-	done
-	truncate -s -2 $@
-	echo '\n]' >> $@
-endef
