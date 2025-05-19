@@ -363,6 +363,6 @@ const t_syscall syscalls[] = {
 	[__NR_landlock_restrict_self] = {"landlock_restrict_self", 2, {INT, UINT}},
 	[__NR_memfd_secret] = {"memfd_secret", 1, {UINT}},
 	[__NR_process_mrelease] = {"process_mrelease", 2, {INT, UINT}},
-	[__NR_futex_waitv] = {"futex_waitv", 5, {PTR, UINT, UINT, PTR, UINT}},
-	[__NR_set_mempolicy_home_node] = {"set_mempolicy_home_node", 4, {ULONG, ULONG, ULONG, UINT}}
+	//[__NR_futex_waitv] = {"futex_waitv", 5, {PTR, UINT, UINT, PTR, UINT}},
+	//[__NR_set_mempolicy_home_node] = {"set_mempolicy_home_node", 4, {ULONG, ULONG, ULONG, UINT}}
 };

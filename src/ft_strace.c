@@ -28,25 +28,6 @@ void get_regs(pid_t tracee, struct user_regs_struct *regs)
 		handle_error("ptrace getregset");
 }
 
-void escape_str(char *str)
-{
-	char *escaped_str = malloc(strlen(str) * 2 + 1);
-	if (!escaped_str)
-		handle_error("malloc");
-
-	char *p = escaped_str;
-	while (*str) {
-		if (*str == '\\' || *str == '"')
-			*p++ = '\\';
-		*p++ = *str++;
-	}
-	*p = '\0';
-
-	fprintf(stderr, "\"%s\"", escaped_str);
-	free(escaped_str);
-}
-
-
 void	format_arg(int type, void *arg)
 {
 	switch (type) {
@@ -87,8 +68,10 @@ void	format_arg(int type, void *arg)
 void block_sig(pid_t pid)
 {
 	sigset_t set;
+	int status;
 	sigemptyset(&set);
 	sigprocmask(SIG_SETMASK, &set, NULL);
+	waitpid(pid, &status, 0);
 	sigaddset(&set, SIGHUP);
 	//sigaddset(&set, SIGINT);
 	sigaddset(&set, SIGQUIT);
@@ -112,12 +95,12 @@ int trace_pid(pid_t tracee)
 	if (ptrace(PTRACE_INTERRUPT, tracee, NULL, NULL) == -1)
 		handle_error("ptrace interrupt");
 
-	waitpid(tracee, &status, 0);
+	//waitpid(tracee, &status, 0);
 
 	block_sig(tracee);
 
-	if (ptrace(PTRACE_SETOPTIONS, tracee, 0, PTRACE_O_TRACESYSGOOD) == -1)
-		handle_error("ptrace setoptions");
+	//if (ptrace(PTRACE_SETOPTIONS, tracee, 0, PTRACE_O_TRACESYSGOOD) == -1)
+	//	handle_error("ptrace setoptions");
 
 	while (1) {
 		if (ptrace(PTRACE_SYSCALL, tracee, NULL, NULL) == -1)
@@ -125,6 +108,9 @@ int trace_pid(pid_t tracee)
 
 		if (waitpid(tracee, &status, 0) == -1)
 			handle_error("waitpid");
+
+		if (WIFEXITED(status))
+			return (WEXITSTATUS(status));
 
 		if (ptrace(PTRACE_GETSIGINFO, tracee, NULL, &siginfo) == -1)
 			handle_error("ptrace getsiginfo");
@@ -147,12 +133,16 @@ int trace_pid(pid_t tracee)
 					format_arg(syscalls[regs.orig_rax].arg_types[i], (void *)args[i]);
 				}
 				fprintf(stderr, ")");
+
 			} else {
-				fprintf(stderr, " = %#llx\n", regs.rax);
-			}	
+				fprintf(stderr, " = 0x%llx\n", regs.rax);
+				fflush(stderr);
+			}
 
 			in_syscall = !in_syscall;
 
+		}  else if (siginfo.si_signo == SIGCONT) {
+			continue;
 		} else {
 			fprintf(stderr, "--- %s ---\n", strsignal(siginfo.si_signo));
 			return (siginfo.si_signo);
@@ -184,7 +174,7 @@ int	main(int argc, char **argv, char **envp)
 		status = trace_pid(pid);
 		if (WIFSIGNALED(status)) {
 			fprintf(stderr, "+++ killed by %s +++\n", strsignal(WTERMSIG(status)));
-			kill(getppid(), WTERMSIG(status));
+			kill(getpid(), WTERMSIG(status));
 		} else
 			fprintf(stderr, "+++ exited with %d +++\n", WEXITSTATUS(status));
 	}
