@@ -96,7 +96,7 @@ $(name): $(objs)
 	$(cc) $(cflags) $(depflags) $(defines) -c $< -o $@
 
 clean:
-	@rm -rvf $(objs) $(deps) $(cmddb) '.cache'
+	@rm -rvf $(objs) $(deps) '.cache'
 
 fclean: clean
 	@rm -vf $(name)
