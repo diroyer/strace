@@ -161,7 +161,7 @@ void block_sig(pid_t pid)
 	sigprocmask(SIG_SETMASK, &set, NULL);
 	waitpid(pid, &status, 0);
 	sigaddset(&set, SIGHUP);
-	//sigaddset(&set, SIGINT);
+	sigaddset(&set, SIGINT);
 	sigaddset(&set, SIGQUIT);
 	sigaddset(&set, SIGPIPE);
 	sigaddset(&set, SIGTERM);
@@ -291,7 +291,8 @@ int	main(int argc, char **argv, char **envp)
 		status = trace_pid(pid);
 		if (WIFSIGNALED(status)) {
 			fprintf(stderr, "+++ killed by %s +++\n", strsignal(WTERMSIG(status)));
-			kill(getpid(), WTERMSIG(status));
+			if (kill(pid, WTERMSIG(status)) == -1)
+				handle_error("kill");
 		} else
 			fprintf(stderr, "+++ exited with %d +++\n", WEXITSTATUS(status));
 	}
